@@ -22,12 +22,16 @@ import com.google.common.collect.ImmutableMap;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import io.appium.java_client.remote.MobileCapabilityType;
+import org.junit.Assert;
 import org.openqa.selenium.*;
 import org.openqa.selenium.html5.Location;
 import org.openqa.selenium.html5.LocationContext;
 import org.openqa.selenium.remote.*;
 import org.openqa.selenium.remote.html5.RemoteLocationContext;
 import org.openqa.selenium.remote.http.HttpMethod;
+import org.openqa.selenium.support.ui.ExpectedCondition;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 
 import javax.xml.bind.DatatypeConverter;
 import java.net.URL;
@@ -692,4 +696,101 @@ public abstract class AppiumDriver extends RemoteWebDriver implements MobileDriv
 	protected static boolean _isNotNullOrEmpty(Object ob) {
 		return ob != null;
 	}
+
+    public void waitForElementEnable(WebElement element, int timeout) {
+
+        try {
+            WebDriverWait wait = new WebDriverWait(this, timeout);
+            wait.until(ExpectedConditions.elementToBeClickable(element));
+        }catch (Exception e)
+        {
+            System.out.println("The element wasn't displayed");
+            System.out.println(e);
+            Assert.fail();
+        }
+    }
+
+    public void waitForElementHidden(final MobileElement element,int timeout){
+
+        ExpectedCondition hiddenCondition = new ExpectedCondition<Boolean>() {
+            public Boolean apply(WebDriver driver) {
+
+                return !(element.isDisplayed());
+            }
+        };
+
+        WebDriverWait wait = new WebDriverWait(this, timeout);
+        wait.until(hiddenCondition);
+    }
+
+    public void waitForElementDisplay(WebElement element, int timeout) {
+
+        try {
+            WebDriverWait wait = new WebDriverWait(this, timeout);
+            wait.until(ExpectedConditions.visibilityOf(element));
+        }catch (Exception e)
+        {
+            System.out.println("The element wasn't displayed");
+            System.out.println(e);
+            Assert.fail();
+        }
+    }
+
+    public boolean isElementExists(MobileElement element, int timeout)
+    {
+        try
+        {
+            WebDriverWait wait = new WebDriverWait(this, timeout);
+            wait.until(ExpectedConditions.visibilityOf(element));
+            return element.isDisplayed();
+        }
+
+        catch (NoSuchElementException e)
+        {
+            return false;
+        }
+    }
+
+    /***
+     * DO WE NEED THIS?
+     */
+    @Deprecated
+    public boolean isElementExistsWeb(WebElement element)
+    {
+        try
+        {
+            return element.isDisplayed();
+        }
+
+        catch (NoSuchElementException e)
+        {
+            return false;
+        }
+    }
+
+
+    public void waitForTime(int seconds){
+        try
+        {
+            Thread.sleep(seconds * 1000);
+        }
+        catch (Exception e)
+        {
+            System.out.println(e.getLocalizedMessage());
+        }
+    }
+
+    public boolean checkForAlert(long waitTime) {
+        try {
+            WebElement alertView = findElementByClassName("UIAAlert");
+            WebDriverWait wait = new WebDriverWait(this, waitTime);
+            wait.until(ExpectedConditions.visibilityOf(alertView));
+            System.out.println(alertView != null);
+            return true;
+        } catch (NoSuchElementException e) {
+            return false;
+        }
+
+
+    }
 }
